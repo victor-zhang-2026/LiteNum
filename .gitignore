@@ -1,0 +1,14 @@
+.DS_Store
+.build/
+.swiftpm/
+build/
+qa/
+design/
+AGENTS.md
+plan.md
+progress.md
+decision.md
+handoff.md
+docs/DEVELOPMENT-local.md
+release/**/*.zip
+release/**/download-verification/
