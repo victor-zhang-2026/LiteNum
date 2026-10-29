@@ -10,7 +10,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         controller = FloatingController()
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
-    func applicationWillTerminate(_ notification: Notification) { controller?.savePosition() }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         controller?.ball.orderFrontRegardless()
         return false

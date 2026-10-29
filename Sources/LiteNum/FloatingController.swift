@@ -16,6 +16,7 @@ final class FloatingController: NSObject {
     let panel: InputPanel
     let model = CalculatorModel()
     private let defaults = UserDefaults.standard
+    private let floatingPlacement = FloatingPlacement()
     private var keyboardMonitor: Any?
     private var mouseMonitor: Any?
     private var outsideMouseMonitor: Any?
@@ -40,6 +41,7 @@ final class FloatingController: NSObject {
             window.appearance = NSAppearance(named: .aqua)
         }
         ball.title = "LiteNum 悬浮球"; panel.title = "LiteNum 计算器"
+        ball.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
         ball.hasShadow = false; panel.hasShadow = true
         ball.becomesKeyOnlyIfNeeded = true
         let trigger = BallView(frame: CGRect(x: 0, y: 0, width: 48, height: 48))
@@ -64,7 +66,7 @@ final class FloatingController: NSObject {
             self?.dismissIfOutside(NSEvent.mouseLocation)
         }
         NotificationCenter.default.addObserver(self, selector: #selector(screensChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
-        restorePosition(); ball.orderFrontRegardless()
+        restorePosition(); floatingPlacement.restore(ball, fallback: ball.frame.origin); ball.orderFrontRegardless()
     }
     deinit {
         for monitor in [keyboardMonitor, mouseMonitor, outsideMouseMonitor].compactMap({ $0 }) { NSEvent.removeMonitor(monitor) }
@@ -125,7 +127,10 @@ final class FloatingController: NSObject {
         cancelClose(); isDragging = true
         if !isPinned { close(explicit: false) }
     }
-    func endDrag() { isDragging = false; savePosition(); if isOpen { positionPanel() } }
+    func endDrag() {
+        if let screen = currentScreen(pointer: NSEvent.mouseLocation) { ball.setFrame(Placement.clamp(ball.frame, to: screen.visibleFrame), display: true) }
+        isDragging = false; savePosition(); if isOpen { positionPanel() }
+    }
     func input(_ key: CalculatorKey) {
         if key == .close { close(); return }
         model.send(key)
@@ -151,23 +156,26 @@ final class FloatingController: NSObject {
     }
     func drag(to origin: CGPoint, pointer: CGPoint, ended: Bool) {
         ball.setFrameOrigin(origin)
-        if let screen = currentScreen(pointer: pointer) { ball.setFrame(Placement.clamp(ball.frame, to: screen.visibleFrame), display: true) }
         if isOpen { positionPanel() }
-        if ended { savePosition() }
+        if ended { endDrag() }
     }
     func savePosition() {
+        floatingPlacement.remember(ball)
         defaults.set(ball.frame.minX, forKey: "ballX"); defaults.set(ball.frame.minY, forKey: "ballY")
     }
     @objc private func screensChanged() {
-        if let screen = currentScreen() { ball.setFrame(Placement.clamp(ball.frame, to: screen.visibleFrame), display: true) }
-        if isOpen { positionPanel() }; savePosition(); ball.orderFrontRegardless()
+        floatingPlacement.afterScreenChange { [weak self] in
+            guard let self, !self.isDragging else { return }
+            self.floatingPlacement.restore(self.ball, fallback: self.ball.frame.origin)
+            if self.isOpen { self.positionPanel() }; self.ball.orderFrontRegardless()
+        }
     }
     func menu() -> NSMenu {
         let menu = NSMenu()
         let quit = NSMenuItem(title: "退出 LiteNum", action: #selector(quit), keyEquivalent: "q")
         quit.target = self; menu.addItem(quit); return menu
     }
-    @objc private func quit() { savePosition(); NSApp.terminate(nil) }
+    @objc private func quit() { NSApp.terminate(nil) }
 }
 
 final class BallView: NSView {

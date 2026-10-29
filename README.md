@@ -6,7 +6,7 @@
 
 A small floating calculator for macOS. Hover to open, click the panel to type, and click outside to tuck it away. Native, offline, no account.
 
-[下载 / Download 1.0.0](https://github.com/victor-zhang-2026/LiteNum/releases/download/v1.0.0/LiteNum-1.0.0-macOS-arm64.zip) · [发布说明 / Release notes](https://github.com/victor-zhang-2026/LiteNum/releases/tag/v1.0.0) · [反馈 / Issues](https://github.com/victor-zhang-2026/LiteNum/issues)
+[下载 / Download 1.0.1](https://github.com/victor-zhang-2026/LiteNum/releases/download/v1.0.1/LiteNum-1.0.1-macOS-arm64.zip) · [发布说明 / Release notes](https://github.com/victor-zhang-2026/LiteNum/releases/tag/v1.0.1) · [反馈 / Issues](https://github.com/victor-zhang-2026/LiteNum/issues)
 
 <img src="docs/images/calculator.png" width="280" alt="LiteNum 实际运行界面：128 × 0.8 = 102.4">
 
@@ -23,7 +23,7 @@ Hover opens a preview without taking keyboard focus. Click the panel to keep it 
 
 ## 安装 / Install
 
-1. 下载 `LiteNum-1.0.0-macOS-arm64.zip`，解压，将 `LiteNum.app` 拖入「应用程序」。GitHub 的 `Source code` 下载项为源码。
+1. 下载 `LiteNum-1.0.1-macOS-arm64.zip`，解压，将 `LiteNum.app` 拖入「应用程序」。GitHub 的 `Source code` 下载项为源码。
 2. 如已有 LiteNum 在运行，先右键悬浮球选择「退出 LiteNum」，再替换并打开新版。
 3. 当前包使用 **ad-hoc 本地签名，未经过 Developer ID 签名和 Apple 公证**。核对来源与 Release 中的 `SHA256SUMS`；首次打开可能需要在「系统设置 → 隐私与安全性」中确认。
 
@@ -75,7 +75,7 @@ open build/LiteNum.app
 
 可使用 `LITENUM_MACOS_SDK` 指定 SDK。构建会从统一矢量图元生成 SVG、PNG 和 ICNS，并组装、签名 App。发布包使用 Swift 6.4 和 macOS 27.0 SDK 构建。
 
-`./scripts/test.sh` 可仅使用 Command Line Tools 执行，无需 XCTest。安装完整 Xcode 时也可运行 `swift test`。本版通过 20 组用例、103 条断言，另有实际窗口、键盘计算与外部点击验证。覆盖范围见 [发布清单](release/v1.0.0/MANIFEST.md)。
+`./scripts/test.sh` 可仅使用 Command Line Tools 执行，无需 XCTest。安装完整 Xcode 时也可运行 `swift test`。1.0.0 版曾通过 20 组用例、103 条断言，另有实际窗口、键盘计算与外部点击验证。本次补丁仅做构建和发布检查，覆盖范围见 [发布清单](release/v1.0.1/MANIFEST.md)。
 
 ```text
 Sources/LiteNum/      SwiftUI 界面、AppKit 窗口和统一矢量 Logo
