@@ -2,11 +2,11 @@
 
 **轻巧、简洁、随时可算。**
 
-原生 macOS 悬浮计算器。移入悬浮球展开，点击面板后直接用键盘计算，点外部随手收起。本地离线，无需账号。
+原生 macOS 悬浮计算器。移入悬浮球展开，点击面板后直接用键盘计算；可固定浮窗，也可点外部收起未固定的浮窗。本地离线，无需账号。
 
 A small floating calculator for macOS. Hover to open, click the panel to type, and click outside to tuck it away. Native, offline, no account.
 
-[下载 / Download 1.0.1](https://github.com/victor-zhang-2026/LiteNum/releases/download/v1.0.1/LiteNum-1.0.1-macOS-arm64.zip) · [发布说明 / Release notes](https://github.com/victor-zhang-2026/LiteNum/releases/tag/v1.0.1) · [反馈 / Issues](https://github.com/victor-zhang-2026/LiteNum/issues)
+[下载 / Download 1.0.2](https://github.com/victor-zhang-2026/LiteNum/releases/download/v1.0.2/LiteNum-1.0.2-macOS-arm64.zip) · [发布说明 / Release notes](https://github.com/victor-zhang-2026/LiteNum/releases/tag/v1.0.2) · [反馈 / Issues](https://github.com/victor-zhang-2026/LiteNum/issues)
 
 <img src="docs/images/calculator.png" width="280" alt="LiteNum 实际运行界面：128 × 0.8 = 102.4">
 
@@ -15,15 +15,17 @@ A small floating calculator for macOS. Hover to open, click the panel to type, a
 - **随时计算**：48pt 悬浮球常驻普通窗口上方，可拖动并记住位置。
 - **轻快展开**：移入预览；未点击时移出自动收起。点击面板后保持打开并获得键盘焦点。
 - **双重输入**：数字键盘和鼠标按钮均可操作，支持加减乘除、小数、清除与退格。
-- **快速收起**：点击外部、右上角叉或按 Esc 收起；右键悬浮球可退出应用。
+- **结果操作**：数字与算式显示千分位逗号；右键点击结果数字可复制。
+- **固定浮窗**：点击右上角图钉可固定，固定后点击外部不会收起；关闭浮窗会解除固定。
+- **快速收起**：未固定时点击外部，或随时点击右上角叉、按 Esc 收起；右键悬浮球可退出应用。
 - **十进制计算**：`128 × 0.8 = 102.4`，`0.1 + 0.2 = 0.3`。按普通计算器的逐步方式运算。
 - **本地离线**：无网络、账号、第三方依赖或全局键盘监听，仅保存悬浮球位置。
 
-Hover opens a preview without taking keyboard focus. Click the panel to keep it open and start typing. Move away from an unpinned preview to dismiss it; after clicking the panel, use an outside click, the close button or Esc. The ball stays available. Right-click it to quit.
+Hover opens a preview without taking keyboard focus. Click the panel to keep it open and start typing. Move away from an unpinned preview to dismiss it. Use the pin button to keep the panel visible when clicking outside; the close button or Esc still dismisses it. Right-click the displayed result to copy it. Right-click the ball to quit.
 
 ## 安装 / Install
 
-1. 下载 `LiteNum-1.0.1-macOS-arm64.zip`，解压，将 `LiteNum.app` 拖入「应用程序」。GitHub 的 `Source code` 下载项为源码。
+1. 下载 `LiteNum-1.0.2-macOS-arm64.zip`，解压，将 `LiteNum.app` 拖入「应用程序」。GitHub 的 `Source code` 下载项为源码。
 2. 如已有 LiteNum 在运行，先右键悬浮球选择「退出 LiteNum」，再替换并打开新版。
 3. 当前包使用 **ad-hoc 本地签名，未经过 Developer ID 签名和 Apple 公证**。核对来源与 Release 中的 `SHA256SUMS`；首次打开可能需要在「系统设置 → 隐私与安全性」中确认。
 
@@ -75,7 +77,7 @@ open build/LiteNum.app
 
 可使用 `LITENUM_MACOS_SDK` 指定 SDK。构建会从统一矢量图元生成 SVG、PNG 和 ICNS，并组装、签名 App。发布包使用 Swift 6.4 和 macOS 27.0 SDK 构建。
 
-`./scripts/test.sh` 可仅使用 Command Line Tools 执行，无需 XCTest。安装完整 Xcode 时也可运行 `swift test`。1.0.0 版曾通过 20 组用例、103 条断言，另有实际窗口、键盘计算与外部点击验证。本次补丁仅做构建和发布检查，覆盖范围见 [发布清单](release/v1.0.1/MANIFEST.md)。
+`./scripts/test.sh` 可仅使用 Command Line Tools 执行，无需 XCTest。安装完整 Xcode 时也可运行 `swift test`。1.0.0 版曾通过 20 组用例、103 条断言，另有实际窗口、键盘计算与外部点击验证。1.0.2 的交互由用户在本机验收；本次发布仅做构建和发布包核对，覆盖范围见 [发布清单](release/v1.0.2/MANIFEST.md)。
 
 ```text
 Sources/LiteNum/      SwiftUI 界面、AppKit 窗口和统一矢量 Logo
