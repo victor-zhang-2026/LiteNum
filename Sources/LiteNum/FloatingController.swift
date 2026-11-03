@@ -46,7 +46,7 @@ final class FloatingController: NSObject {
         ball.becomesKeyOnlyIfNeeded = true
         let trigger = BallView(frame: CGRect(x: 0, y: 0, width: 48, height: 48))
         trigger.controller = self; ball.contentView = trigger
-        let hosting = PanelHostingView(rootView: CalculatorView(model: model, onClose: { [weak self] in self?.close() }, onInput: { [weak self] key in self?.input(key) }))
+        let hosting = PanelHostingView(rootView: CalculatorView(model: model, onClose: { [weak self] in self?.close() }, onInput: { [weak self] key in self?.input(key) }, onToggleLock: { [weak self] in self?.togglePanelLock() }))
         hosting.onHover = { [weak self] inside in inside ? self?.cancelClose() : self?.scheduleClose() }
         panel.contentView = hosting
         keyboardMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
@@ -94,7 +94,7 @@ final class FloatingController: NSObject {
         cancelClose()
         guard isOpen else { return }
         let restore = panel.isKeyWindow && NSApp.isActive
-        isOpen = false; isPinned = false; panel.orderOut(nil)
+        isOpen = false; isPinned = false; model.isPanelLocked = false; panel.orderOut(nil)
         if explicit { suppressHover = ball.frame.contains(NSEvent.mouseLocation) }
         if restore, let previousApplication, previousApplication.processIdentifier != ProcessInfo.processInfo.processIdentifier {
             previousApplication.activate(options: [])
@@ -102,9 +102,14 @@ final class FloatingController: NSObject {
         previousApplication = nil
     }
     func triggerEntered() { cancelClose(); open() }
+    func togglePanelLock() {
+        guard isOpen else { return }
+        model.isPanelLocked.toggle()
+        if model.isPanelLocked { isPinned = true; cancelClose() }
+    }
     private func dismissIfOutside(_ point: CGPoint) {
         // Geometric exclusions also cover AppKit paths that report a trigger click globally.
-        guard isOpen, !isDragging, !ball.frame.contains(point), !panel.frame.contains(point) else { return }
+        guard isOpen, !model.isPanelLocked, !isDragging, !ball.frame.contains(point), !panel.frame.contains(point) else { return }
         close()
     }
     func triggerExited() { suppressHover = false; scheduleClose() }

@@ -1,8 +1,10 @@
+import AppKit
 import SwiftUI
 import LiteNumCore
 
 final class CalculatorModel: ObservableObject {
     @Published var calculator = Calculator()
+    @Published var isPanelLocked = false
     func send(_ key: CalculatorKey) { calculator.send(key) }
 }
 
@@ -10,6 +12,7 @@ struct CalculatorView: View {
     @ObservedObject var model: CalculatorModel
     let onClose: () -> Void
     let onInput: (CalculatorKey) -> Void
+    let onToggleLock: () -> Void
     private let ink = Color(red: 37/255, green: 37/255, blue: 37/255)
     private let red = Color(nsColor: BrandArtwork.main)
     private let pale = Color(red: 248/255, green: 234/255, blue: 230/255)
@@ -21,21 +24,35 @@ struct CalculatorView: View {
                 BrandIcon(size: 26)
                 Text("LiteNum").font(.system(size: 14, weight: .semibold))
                 Spacer()
+                Button(action: onToggleLock) {
+                    Image(systemName: model.isPanelLocked ? "pin.fill" : "pin")
+                        .font(.system(size: 11, weight: .semibold)).frame(width: 26, height: 26)
+                }
+                .buttonStyle(KeyStyle(fill: Color.black.opacity(0.045), foreground: model.isPanelLocked ? red : .secondary))
+                .accessibilityLabel(model.isPanelLocked ? "取消固定浮窗" : "固定浮窗")
+                .help(model.isPanelLocked ? "取消固定浮窗" : "固定浮窗")
                 Button(action: onClose) { Image(systemName: "xmark").font(.system(size: 11, weight: .semibold)).frame(width: 26, height: 26) }
                     .buttonStyle(KeyStyle(fill: Color.black.opacity(0.045), foreground: .secondary))
                     .accessibilityLabel("收起计算器").help("收起 · Esc")
             }.frame(height: 28)
             Spacer().frame(height: 14)
             VStack(alignment: .trailing, spacing: 9) {
-                Text(model.calculator.expression.isEmpty ? " " : model.calculator.expression)
+                Text(model.calculator.expression.isEmpty ? " " : model.calculator.expression.split(separator: " ", omittingEmptySubsequences: false).map { grouped(String($0)) }.joined(separator: " "))
                     .font(.system(size: 12, weight: .medium)).foregroundColor(.secondary)
                     .lineLimit(1).minimumScaleFactor(0.65).frame(maxWidth: .infinity, alignment: .trailing)
                     .accessibilityIdentifier("expression")
-                Text(model.calculator.error ?? model.calculator.display)
+                Text(model.calculator.error ?? grouped(model.calculator.display))
                     .font(.system(size: model.calculator.error == nil ? 36 : 25, weight: .medium, design: .rounded))
                     .monospacedDigit().foregroundColor(model.calculator.error == nil ? ink : red)
                     .lineLimit(1).minimumScaleFactor(0.38).frame(maxWidth: .infinity, alignment: .trailing)
                     .accessibilityIdentifier("result").textSelection(.disabled)
+                    .contextMenu {
+                        Button("复制结果") {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(grouped(model.calculator.display), forType: .string)
+                        }
+                        .disabled(model.calculator.error != nil)
+                    }
             }.frame(height: 74, alignment: .bottom)
             Text(model.calculator.notice ?? " ").font(.system(size: 10)).foregroundColor(red).frame(height: 24)
             VStack(spacing: 8) {
@@ -65,6 +82,18 @@ struct CalculatorView: View {
         .environment(\.colorScheme, .light)
     }
     private func digit(_ value: String) -> some View { key(value, .digit(value)) }
+    private func grouped(_ text: String) -> String {
+        guard !text.contains("e") else { return text }
+        let negative = text.hasPrefix("-")
+        let unsigned = negative ? String(text.dropFirst()) : text
+        let parts = unsigned.split(separator: ".", maxSplits: 1, omittingEmptySubsequences: false)
+        guard let integer = parts.first, !integer.isEmpty, integer.allSatisfy(\.isNumber) else { return text }
+        let digits = Array(integer)
+        let whole = digits.enumerated().map { index, digit in
+            (index > 0 && (digits.count - index) % 3 == 0 ? "," : "") + String(digit)
+        }.joined()
+        return (negative ? "-" : "") + whole + (parts.count > 1 ? "." + parts[1] : "")
+    }
     private func key(_ title: String, _ input: CalculatorKey, label: String? = nil, special: Bool = false, width: CGFloat = 56) -> some View {
         let selected: Bool = { if case .operation(let operation) = input { return model.calculator.pending == operation }; return false }()
         return Button { onInput(input) } label: {
